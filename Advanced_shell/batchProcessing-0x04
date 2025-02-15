@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Task 5: Parallel Data Fetching
+
+
 # Function to fetch data for a single Pokemon using curl and jq
 fetch_pokemon_data() {
   pokemon_name="$1"
