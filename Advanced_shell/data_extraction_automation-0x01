@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Task 0: Extract Pokémon Data
+# Define input and output file
+INPUT_FILE="Advanced_shell/data.json"
+
+# Extract data using jq
+NAME=$(jq '.name' "$INPUT_FILE" | tr -d '"')
+HEIGHT=$(jq '.height' "$INPUT_FILE")
+WEIGHT=$(jq '.weight' "$INPUT_FILE")
+TYPE=$(jq '.types[0].type.name' "$INPUT_FILE" | tr -d '"')
+
+# Format and print the output
+echo "$NAME is of type $TYPE, weighs $((\WEIGHT/10))kg, and is $((HEIGHT/10))m tall."
