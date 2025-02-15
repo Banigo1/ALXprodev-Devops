@@ -1,11 +1,11 @@
-# Advanced shell scripting
+# Advanced Shell Scripting
 
 ## Tasks
 
 1. ### API Request Automation
-mandatory
+
  
-Objective: Automate the process of making API requests to the Pokémon API and saving the results to a file
+Automate the process of making API requests to the Pokémon API and saving the results to a file
 
 Instructions:
 
@@ -20,9 +20,9 @@ Directory: Advanced_shell
 File: apiAutomation-0x00
   
 1.  ### Extract Pokémon Data
-mandatory
+
  
-Objective: Use advanced text manipulation tools (jq, awk, sed) to extract specific data from the API response.
+Use advanced text manipulation tools (jq, awk, sed) to extract specific data from the API response.
 
 Instructions:
 
@@ -37,9 +37,9 @@ Directory: Advanced_shell
 File: data_extraction_automation-0x01
   
 2.  ### Batch Pokémon Data Retrieval
-mandatory
+
  
-Objective: Automate the retrieval of data for multiple Pokémon and store it in separate files.
+Automate the retrieval of data for multiple Pokémon and store it in separate files.
 
 Instructions:
 
@@ -54,9 +54,9 @@ Directory: Advanced_shell
 File: batchProcessing-0x02
   
 3.  ### Summarize Pokémon Data
-mandatory
+
  
-Objective: Create a report that summarizes data for multiple Pokémon.
+Create a report that summarizes data for multiple Pokémon.
 
 Instructions:
 
@@ -71,9 +71,9 @@ Directory: Advanced_shell
 File: summaryData-0x03
   
 4.  ### Error Handling and Retry Logic
-mandatory
+
  
-Objective: Add robust error handling and retry logic for API requests.
+Add robust error handling and retry logic for API requests.
 
 Instructions:
 
@@ -86,9 +86,9 @@ Directory: Advanced_shell
 File: batchProcessing-0x02
   
 5.  ### Parallel Data Fetching
-mandatory
+
  
-Objective: Speed up data retrieval using parallel processing.
+Speed up data retrieval using parallel processing.
 
 Instructions:
 
