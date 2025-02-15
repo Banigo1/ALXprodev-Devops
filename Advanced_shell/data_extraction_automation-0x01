@@ -1,14 +1,19 @@
 #!/bin/bash
 
 # Task 0: Extract Pokémon Data
-# Define input and output file
+
+# Define input file
 INPUT_FILE="Advanced_shell/data.json"
 
-# Extract data using jq
-NAME=$(jq '.name' "$INPUT_FILE" | tr -d '"')
-HEIGHT=$(jq '.height' "$INPUT_FILE")
-WEIGHT=$(jq '.weight' "$INPUT_FILE")
-TYPE=$(jq '.types[0].type.name' "$INPUT_FILE" | tr -d '"')
+# Extract data using awk and sed
+NAME=$(sed -n 's/.*"name": "\([^"]*\)".*/\1/p' "$INPUT_FILE")
+HEIGHT=$(sed -n 's/.*"height": \([0-9]*\).*/\1/p' "$INPUT_FILE")
+WEIGHT=$(sed -n 's/.*"weight": \([0-9]*\).*/\1/p' "$INPUT_FILE")
+TYPE=$(sed -n 's/.*"type": {[^}]*"name": "\([^"]*\)".*/\1/p' "$INPUT_FILE")
+
+# Format weight and height
+FORMATTED_WEIGHT=$(awk "BEGIN {printf \"%.1f\", $WEIGHT/10}")
+FORMATTED_HEIGHT=$(awk "BEGIN {printf \"%.1f\", $HEIGHT/10}")
 
 # Format and print the output
-echo "$NAME is of type $TYPE, weighs $((\WEIGHT/10))kg, and is $((HEIGHT/10))m tall."
+echo "$NAME is of type $TYPE, weighs ${FORMATTED_WEIGHT}kg, and is ${FORMATTED_HEIGHT}m tall."
