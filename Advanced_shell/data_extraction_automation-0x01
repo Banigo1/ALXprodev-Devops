@@ -2,21 +2,22 @@
 
 # Task 0: Extract Pokémon Data
 
-#!/bin/bash
+# A script that extracts the Pokémon’s name, height, weight, and type from the JSON file data.json
 
-# Define the JSON file name
-json_file="pokemon.json"
+# Read the JSON file
+data=$(<data.json)
 
-# Extract data using jq
-pokemon_name=$(jq -r '.name' "$json_file")
-pokemon_height_dm=$(jq -r '.height' "$json_file")  # Height in decimeters
-pokemon_weight_hg=$(jq -r '.weight' "$json_file")  # Weight in hectograms
-pokemon_types=$(jq -r '.types[].type.name' "$json_file" | paste -s -d ', ')
+# Extract the Pokémon’s name
+name=$(echo "$data" | jq -r '.name' | sed 's/./\u&/')
 
+# Extract the Pokémon’s height
+formatted_height=$(echo "$data" | jq '.height / 10')
 
-# Convert units using awk
-pokemon_height_m=$(echo "$pokemon_height_dm" | awk '{printf "%.1fm", $1/10}')
-pokemon_weight_kg=$(echo "$pokemon_weight_hg" | awk '{printf "%.1fkg", $1/10}')
+# Extract the Pokémon’s weight
+formatted_weight=$(echo "$data" | jq '.weight' | awk '{print $1/10}')
 
-# Format and print the output using printf
-printf "%s is of type %s, weighs %s, and is %s tall.\n" "$pokemon_name" "$pokemon_types" "$pokemon_weight_kg" "$pokemon_height_m"
+# Extract the Pokémon’s type
+type=$(echo "$data" | jq -r '.types[0].type.name' | sed 's/./\u&/')
+
+# Print the extracted data
+echo "$name is of type $type, weighs ${formatted_weight}kg, and is ${formatted_height}m tall."
