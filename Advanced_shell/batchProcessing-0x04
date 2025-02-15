@@ -1,14 +1,11 @@
 #!/bin/bash
 
-# Task 5: Parallel Data Fetching
-#!/bin/bash
-
 # Function to fetch data for a single Pokemon using curl and jq
 fetch_pokemon_data() {
   pokemon_name="$1"
   url="https://pokeapi.co/api/v2/pokemon/${pokemon_name}"
 
-  curl -s "$url" | jq -r '.name'  # Extract the name, -r for raw output
+  curl -s "$url" | jq -r '.name'
 }
 
 # Array of Pokemon names
@@ -22,33 +19,50 @@ pokemon_names=(
 )
 
 # Number of parallel processes (adjust as needed)
-num_processes=$(nproc) # or a fixed number, e.g., 4
+num_processes=$(nproc)
 
 # Create a temporary directory for storing results
 temp_dir=$(mktemp -d)
 
 start_time=$(date +%s)
 
+# Array to store process IDs (PIDs)
+pids=()
+
 # Loop through the Pokemon names and process them in parallel
 for i in "${!pokemon_names[@]}"; do
   pokemon_name="${pokemon_names[$i]}"
   # Run fetch_pokemon_data in the background, redirecting output to a file
   fetch_pokemon_data "$pokemon_name" > "$temp_dir/$i.json" &
+  pid=$!  # Get the PID of the background process
+  pids+=("$pid") # Add the PID to the array
+
   # Limit the number of background processes
   while [[ $(jobs -r | wc -l) -ge "$num_processes" ]]; do
-    sleep 0.1 # Check every 0.1 seconds
+    sleep 0.1
   done
 done
 
-# Wait for all background processes to finish
-wait
+# Wait for all background processes to finish OR handle Ctrl+C
+trap_handler() {
+    echo "Interrupt received. Killing background processes..."
+    for pid in "${pids[@]}"; do
+        kill "$pid" 2>/dev/null  # Suppress "no such process" errors
+    done
+    rm -rf "$temp_dir"  # Clean up
+    exit 1  # Exit with error code
+}
+
+trap trap_handler INT TERM
+
+wait  # Wait for all background processes to finish
 
 end_time=$(date +%s)
 elapsed_time=$((end_time - start_time))
 
 echo "Time taken: ${elapsed_time} seconds"
 
-# Process and display the results
+# ... (rest of the script for processing and displaying results remains the same)
 for i in "${!pokemon_names[@]}"; do
     pokemon_name="${pokemon_names[$i]}"
     result=$(cat "$temp_dir/$i.json")
@@ -59,5 +73,4 @@ for i in "${!pokemon_names[@]}"; do
     fi
 done
 
-# Clean up the temporary directory
 rm -rf "$temp_dir"
