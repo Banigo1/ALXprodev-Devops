@@ -2,30 +2,21 @@
 
 # Task 0: Extract Pokémon Data
 
-# Define input file
-INPUT_FILE="Advanced_shell/data.json"
+#!/bin/bash
 
-# Extract data using sed and awk
+# Define the JSON file name
+json_file="pokemon.json"
 
-# Extract 'name'
-NAME=$(sed -n 's/.*"name": "\([^"]*\)".*/\1/p' "$INPUT_FILE")
+# Extract data using jq
+pokemon_name=$(jq -r '.name' "$json_file")
+pokemon_height_dm=$(jq -r '.height' "$json_file")  # Height in decimeters
+pokemon_weight_hg=$(jq -r '.weight' "$json_file")  # Weight in hectograms
+pokemon_types=$(jq -r '.types[].type.name' "$json_file" | paste -s -d ', ')
 
-# Extract 'height'
-HEIGHT=$(sed -n 's/.*"height": \([0-9]*\).*/\1/p' "$INPUT_FILE")
 
-# Extract 'weight'
-WEIGHT=$(sed -n 's/.*"weight": \([0-9]*\).*/\1/p' "$INPUT_FILE")
+# Convert units using awk
+pokemon_height_m=$(echo "$pokemon_height_dm" | awk '{printf "%.1fm", $1/10}')
+pokemon_weight_kg=$(echo "$pokemon_weight_hg" | awk '{printf "%.1fkg", $1/10}')
 
-# Extract 'type'
-TYPE=$(sed -n 's/.*"types": 
-
-\[\([^]]*\)\]
-
-.*/\1/p' "$INPUT_FILE" | sed -n 's/.*"name": "\([^"]*\)".*/\1/p')
-
-# Format weight and height
-FORMATTED_WEIGHT=$(awk "BEGIN {printf \"%.1f\", $WEIGHT/10}")
-FORMATTED_HEIGHT=$(awk "BEGIN {printf \"%.1f\", $HEIGHT/10}")
-
-# Format and print the output
-echo "$NAME is of type $TYPE, weighs ${FORMATTED_WEIGHT}kg, and is ${FORMATTED_HEIGHT}m tall."
+# Format and print the output using printf
+printf "%s is of type %s, weighs %s, and is %s tall.\n" "$pokemon_name" "$pokemon_types" "$pokemon_weight_kg" "$pokemon_height_m"
