@@ -1,14 +1,41 @@
 #!/bin/bash
 
-# Create the CSV file and write the header
-echo "name,height,weight" > pokemon_report.csv
+# Task 3: Summarize Pokémon Data
 
-# Loop through all JSON files in the current directory
-for file in *.json
+#  Create a report that summarizes data for multiple Pokémon.
+pokemon_names=("venusaur" "bulbasaur" "ivysaur" "ienusaur" "charmander" "charmeleon")
+report=''
+
+for name in "${pokemon_names[@]}"
 do
-  # Extract the name, height, and weight and append to the CSV file
-  jq -r '. | "\(.name),\(.height),\(.weight)"' "$file" >> pokemon_report.csv
+    # Read the JSON file
+    data=$(<"$name.json")
+
+    # Extract the Pokémon’s name
+    name=$(echo "$data" | jq -r '.name' | sed 's/./\u&/')
+
+    # Extract the Pokémon’s height
+    formatted_height=$(echo "$data" | jq '.height / 10')
+
+    # Extract the Pokémon’s weight
+    formatted_weight=$(echo "$data" | jq '.weight' | awk '{print $1/10}')
+
+    # Extract the Pokémon’s type
+    type=$(echo "$data" | jq -r '.types[0].type.name' | sed 's/./\u&/')
+
+    # Save name, type, weight, and height to a summary.csv file
+    echo "$name,$type,$formatted_weight,$formatted_height" >> summary.csv
+
+    # Append the summary to the report
+    report+="Name: $name\nType: $type\nWeight: ${formatted_weight}kg\nHeight: ${formatted_height}m\n\n"
+
 done
 
-# Calculate the average height and weight using awk
-awk -F, 'NR>1 {height+=$2; weight+=$3; count++} END {print "Average Height: " height/count "\nAverage Weight: " weight/count}' pokemon_report.csv
+# average height and weight
+average_height=$(awk -F, '{sum+=$4} END {print sum/NR}' summary.csv)
+average_weight=$(awk -F, '{sum+=$3} END {print sum/NR}' summary.csv)
+
+# Append the average height and weight to the report
+report+="Average Height: ${average_height}m\nAverage Weight: ${average_weight}kg\n"
+
+echo -e "$report"
