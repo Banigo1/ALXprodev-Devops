@@ -2,7 +2,7 @@
 
 # Task 5: Parallel Data Fetching
 
-# Define the list of Pokémon
+# List of Pokémon to fetch data for
 POKEMONS=("bulbasaur" "ivysaur" "venusaur" "charmander" "charmeleon")
 
 # Define the directory for storing data
@@ -10,30 +10,23 @@ DATA_DIR="Advanced_shell"
 
 # Create the data directory if it doesn't exist
 mkdir -p "$DATA_DIR"
+#!/bin/bash
 
-# Function to retrieve Pokémon data
-get_pokemon_data() {
-  local pokemon="$1"
-  local output_file="$2"
-  local api_url="https://pokeapi.co/api/v2/pokemon/$pokemon"
 
-  echo "Retrieving data for $pokemon..."
-  curl -s "$api_url" > "$output_file"
 
-  if [ -s "$output_file" ]; then
-    echo "Data for $pokemon successfully retrieved and saved to $output_file."
-  else
-    echo "Error: Failed to retrieve data for $pokemon."
-  fi
+# Function to fetch data for a single Pokémon
+fetch_data() {
+  pokemon=$1
+  curl -s "https://pokeapi.co/api/v2/pokemon/$pokemon" -o "$pokemon.json"
 }
 
-# Loop through the list of Pokémon and fetch data in parallel
-for POKEMON in "${POKEMONS[@]}"; do
-  OUTPUT_FILE="$DATA_DIR/$POKEMON.json"
-  get_pokemon_data "$POKEMON" "$OUTPUT_FILE" & # Run in background
+# Fetch data in parallel
+for pokemon in "${POKEMONS[@]}"
+do
+  fetch_data "$pokemon" &
 done
 
 # Wait for all background processes to complete
 wait
 
-echo "All Pokémon data retrieval processes completed."
+echo "Data retrieval complete!"
