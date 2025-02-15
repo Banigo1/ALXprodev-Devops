@@ -5,11 +5,23 @@
 # Define input file
 INPUT_FILE="Advanced_shell/data.json"
 
-# Extract data using awk and sed
+# Extract data using sed and awk
+
+# Extract 'name'
 NAME=$(sed -n 's/.*"name": "\([^"]*\)".*/\1/p' "$INPUT_FILE")
+
+# Extract 'height'
 HEIGHT=$(sed -n 's/.*"height": \([0-9]*\).*/\1/p' "$INPUT_FILE")
+
+# Extract 'weight'
 WEIGHT=$(sed -n 's/.*"weight": \([0-9]*\).*/\1/p' "$INPUT_FILE")
-TYPE=$(sed -n 's/.*"type": {[^}]*"name": "\([^"]*\)".*/\1/p' "$INPUT_FILE")
+
+# Extract 'type'
+TYPE=$(sed -n 's/.*"types": 
+
+\[\([^]]*\)\]
+
+.*/\1/p' "$INPUT_FILE" | sed -n 's/.*"name": "\([^"]*\)".*/\1/p')
 
 # Format weight and height
 FORMATTED_WEIGHT=$(awk "BEGIN {printf \"%.1f\", $WEIGHT/10}")
