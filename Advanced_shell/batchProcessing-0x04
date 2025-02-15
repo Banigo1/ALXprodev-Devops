@@ -1,32 +1,63 @@
 #!/bin/bash
 
 # Task 5: Parallel Data Fetching
-
-# List of Pokémon to fetch data for
-POKEMONS=("bulbasaur" "ivysaur" "venusaur" "charmander" "charmeleon")
-
-# Define the directory for storing data
-DATA_DIR="Advanced_shell"
-
-# Create the data directory if it doesn't exist
-mkdir -p "$DATA_DIR"
 #!/bin/bash
 
+# Function to fetch data for a single Pokemon using curl and jq
+fetch_pokemon_data() {
+  pokemon_name="$1"
+  url="https://pokeapi.co/api/v2/pokemon/${pokemon_name}"
 
-
-# Function to fetch data for a single Pokémon
-fetch_data() {
-  pokemon=$1
-  curl -s "https://pokeapi.co/api/v2/pokemon/$pokemon" -o "$pokemon.json"
+  curl -s "$url" | jq -r '.name'  # Extract the name, -r for raw output
 }
 
-# Fetch data in parallel
-for pokemon in "${POKEMONS[@]}"
-do
-  fetch_data "$pokemon" &
+# Array of Pokemon names
+pokemon_names=(
+  "pikachu" "charizard" "bulbasaur" "squirtle" "jigglypuff"
+  "mewtwo" "eevee" "snorlax" "ditto" "vaporeon" "jolteon"
+  "flareon" "pidgeot" "rattata" "zubat" "ekans" "arbok"
+  "pikachu" "charizard" "bulbasaur" "squirtle" "jigglypuff" #duplicates
+  "mewtwo" "eevee" "snorlax" "ditto" "vaporeon" "jolteon"
+  "flareon" "pidgeot" "rattata" "zubat" "ekans" "arbok"
+)
+
+# Number of parallel processes (adjust as needed)
+num_processes=$(nproc) # or a fixed number, e.g., 4
+
+# Create a temporary directory for storing results
+temp_dir=$(mktemp -d)
+
+start_time=$(date +%s)
+
+# Loop through the Pokemon names and process them in parallel
+for i in "${!pokemon_names[@]}"; do
+  pokemon_name="${pokemon_names[$i]}"
+  # Run fetch_pokemon_data in the background, redirecting output to a file
+  fetch_pokemon_data "$pokemon_name" > "$temp_dir/$i.json" &
+  # Limit the number of background processes
+  while [[ $(jobs -r | wc -l) -ge "$num_processes" ]]; do
+    sleep 0.1 # Check every 0.1 seconds
+  done
 done
 
-# Wait for all background processes to complete
+# Wait for all background processes to finish
 wait
 
-echo "Data retrieval complete!"
+end_time=$(date +%s)
+elapsed_time=$((end_time - start_time))
+
+echo "Time taken: ${elapsed_time} seconds"
+
+# Process and display the results
+for i in "${!pokemon_names[@]}"; do
+    pokemon_name="${pokemon_names[$i]}"
+    result=$(cat "$temp_dir/$i.json")
+    if [[ -n "$result" ]]; then # Check if the result is not empty
+        echo "Data for ${pokemon_name}: ${result}"
+    else
+        echo "Failed to retrieve data for ${pokemon_name}"
+    fi
+done
+
+# Clean up the temporary directory
+rm -rf "$temp_dir"
